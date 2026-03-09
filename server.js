@@ -1,40 +1,29 @@
-const express = require("express");
-const axios = require("axios");
+const express = require("express")
 
-const app = express();
-app.use(express.json());
+const app = express()
 
-app.get("/", (req,res)=>{
-res.send("Juice Machine Server Running");
-});
+let paymentStatus = "WAIT"
 
-app.post("/razorpay-webhook",(req,res)=>{
-
-console.log("Webhook Received");
-
-let payment = req.body.payload.payment.entity;
-
-if(payment.status == "captured")
-{
-console.log("Payment Successful");
-triggerJuice();
-}
-
-res.send("ok");
-
-});
-
-function triggerJuice()
-{
-axios.get("http://YOUR_ESP32_IP/dispense")
-.then(()=>{
-console.log("Juice Dispensed");
+app.get("/",(req,res)=>{
+res.send("Juice Machine Server Running")
 })
-.catch(err=>{
-console.log(err);
-});
-}
 
-app.listen(10000,()=>{
-console.log("Server Started");
-});
+app.get("/pay",(req,res)=>{
+
+paymentStatus="PAID"
+
+res.send("Payment received")
+
+})
+
+app.get("/check",(req,res)=>{
+
+res.send(paymentStatus)
+
+paymentStatus="WAIT"
+
+})
+
+app.listen(3000,()=>{
+console.log("Server started")
+})
