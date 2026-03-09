@@ -1,7 +1,9 @@
+
+
 const express = require("express")
 
 const app = express()
-
+app.use(express.static(__dirname));
 let paymentStatus = "WAIT"
 
 app.get("/",(req,res)=>{
@@ -27,3 +29,4 @@ paymentStatus="WAIT"
 app.listen(3000,()=>{
 console.log("Server started")
 })
+
