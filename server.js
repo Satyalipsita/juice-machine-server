@@ -3,7 +3,7 @@ const app = express()
 
 app.use(express.json())
 
-let paymentStatus = "WAIT"
+let paymentStatus="WAIT"
 
 app.get("/",(req,res)=>{
 res.send("Juice Machine Server Running")
@@ -20,11 +20,11 @@ res.send("Payment received")
 
 app.post("/webhook",(req,res)=>{
 
-const event=req.body.event
+console.log("Webhook received")
 
-if(event=="payment.captured"){
+if(req.body.event=="payment.captured"){
 paymentStatus="PAID"
-console.log("Payment captured from Razorpay")
+console.log("Payment captured")
 }
 
 res.status(200).send("OK")
