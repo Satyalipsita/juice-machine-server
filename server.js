@@ -1,38 +1,42 @@
 const express = require("express")
-const bodyParser = require("body-parser")
-
 const app = express()
-app.use(bodyParser.json())
+
+app.use(express.json())
 
 let paymentStatus = "WAIT"
 
-// webhook from razorpay
-app.post("/webhook", (req,res)=>{
+// Home page
+app.get("/", (req,res)=>{
+res.send("Juice Machine Server Running")
+})
 
-let event = req.body.event
+// ESP32 checks payment here
+app.get("/check",(req,res)=>{
+res.send(paymentStatus)
+})
 
-if(event == "payment.captured")
-{
-paymentStatus = "PAID"
-console.log("Payment Confirmed")
+// Manual test trigger
+app.get("/pay",(req,res)=>{
+paymentStatus="PAID"
+res.send("Payment received")
+})
+
+// Razorpay webhook
+app.post("/webhook",(req,res)=>{
+
+const event=req.body.event
+
+if(event=="payment.captured"){
+paymentStatus="PAID"
+console.log("Payment captured")
 }
 
 res.status(200).send("OK")
 
 })
 
-// esp32 checks payment
-app.get("/check",(req,res)=>{
+const PORT = process.env.PORT || 3000
 
-res.send(paymentStatus)
-
-if(paymentStatus=="PAID")
-{
-paymentStatus="WAIT"
-}
-
-})
-
-app.listen(3000,()=>{
-console.log("Server running")
+app.listen(PORT,()=>{
+console.log("Server running on port "+PORT)
 })
