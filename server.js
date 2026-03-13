@@ -4,65 +4,55 @@ const app = express()
 
 app.use(express.json())
 
-// payment status variable
 let paymentStatus = "WAIT"
 
 
-// Home route
+/* ROOT */
 
-app.get("/", (req,res)=>{
+app.get("/",(req,res)=>{
 
 res.send("Juice Machine Server Running")
 
 })
 
 
-// ESP32 checks payment here
+/* ESP32 CHECK PAYMENT */
 
 app.get("/check",(req,res)=>{
 
 res.send(paymentStatus)
 
+/* reset after ESP reads */
+
+if(paymentStatus=="PAID"){
+paymentStatus="WAIT"
+}
+
 })
 
 
-// Manual payment test
+/* TEST PAYMENT */
 
 app.get("/pay",(req,res)=>{
 
 paymentStatus="PAID"
 
-console.log("Payment received")
+console.log("Manual payment triggered")
 
 res.send("Payment received")
 
 })
 
 
-// Reset after drink is dispensed
-
-app.get("/reset",(req,res)=>{
-
-paymentStatus="WAIT"
-
-console.log("Machine reset")
-
-res.send("Reset done")
-
-})
-
-
-// Razorpay webhook
+/* RAZORPAY WEBHOOK */
 
 app.post("/webhook",(req,res)=>{
 
-try{
+const event=req.body.event
 
-const event = req.body.event
+console.log("Webhook:",event)
 
-console.log("Webhook event:",event)
-
-if(event === "payment.captured"){
+if(event=="payment.captured"){
 
 paymentStatus="PAID"
 
@@ -70,27 +60,13 @@ console.log("Payment captured")
 
 }
 
-res.status(200).send("Webhook received")
-
-}
-
-catch(error){
-
-console.log(error)
-
-res.status(500).send("Error")
-
-}
+res.send("ok")
 
 })
 
 
-// start server
+app.listen(3000,()=>{
 
-const PORT = process.env.PORT || 3000
-
-app.listen(PORT,()=>{
-
-console.log("Server running on port",PORT)
+console.log("Server running")
 
 })
